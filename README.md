@@ -1,7 +1,7 @@
 # RayLib32x32GameJam
-My submission for the RayLib 32x32 Game Jam raylib 32x32 game/demo competition
+My submission for the [RayLib 32x32 Game Jam raylib 32x32 game/demo competition](https://www.reddit.com/r/raylib/comments/g10ofj/raylib_32x32_competition_free_entry_win_prizes/)
 
-Rules are as follows
+The Rules of the competition:
 
    Competition consists of developing a videogame in a 32x32 pixels screen size.
 
@@ -20,8 +20,7 @@ Rules are as follows
 
    LICENSE: zlib/libpng
 
-   Copyright (c) 2020 <TODO: participant_name> (<TODO: participant_github_name>)
-
+   Copyright (c) 2020 Copyright (c) 2020 Rudy Faile (@rfaile313)
    This software is provided "as-is", without any express or implied warranty. In no event
    will the authors be held liable for any damages arising from the use of this software.
 
