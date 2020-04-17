@@ -2,7 +2,9 @@
 My submission for the [RayLib 32x32 Game Jam raylib 32x32 game/demo competition](https://www.reddit.com/r/raylib/comments/g10ofj/raylib_32x32_competition_free_entry_win_prizes/) is a game I call Flappy Box! 
 ![gameplay gif](https://media.giphy.com/media/WnUN2kW2dptj1pKq11/giphy.gif)
 
-You can download & extract the Windows executable from the "Flappy Box Windows Exe" zip. The actual game is 15kb unzipped!!!
+You can download & extract the Windows executable from the "Flappy Box Windows Exe" zip. 
+
+The actual game in its executable form is **15kb unzipped!!!** 😮
 
 Feel free to also download and compile from source. You'll need [raylib.](https://www.raylib.com/) 
 
