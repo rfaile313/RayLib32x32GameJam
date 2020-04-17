@@ -19,7 +19,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2020 <TODO: participant_name> (<TODO: participant_github_name>)
+*   Copyright (c) 2020 Rudy Faile (@rfaile313)
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -39,7 +39,6 @@
 **********************************************************************************************/
 
 //TODO ADD SOUND
-//TODO ADD START AND END SCREEN AND save HIGH SCORE with that raylib func
 
 #include "raylib.h"
 #include "raymath.h"
@@ -59,6 +58,7 @@
 
 #define FPS 60
 
+
 const int windowWidth = 512;        // NOTE: Game will be scaled x16
 const int windowHeight = 512;
 const int gameScreenWidth = 32;
@@ -69,37 +69,37 @@ const float JUMP_POWER = 0.05f;
 const float VELOCITY = 0.15f;
 const int COUNT = 150;
 
+bool title = true;
+bool scoreScreen = false;
+
 int pipeDistanceTop, pipeDistanceBottom = 0;
+int currentDifficulty = EASY_HEIGHT;
 int frameCount = 0;
 int score = 0;
+int hiScore;
 int i;
 
-enum GameScreen { 
-    TITLE, 
-    GAMEPLAY
-};
-
-enum Difficulty {
-    EASY,
-    MEDIUM,
-    IMPOSSIBLE
-};
+typedef enum {
+    STORAGE_POSITION_HISCORE = 0
+} StorageData;
 
 struct Player {
     Rectangle position;
     Color color;
-    bool isJumping;
     bool isDead;
-    bool isColliding;
 };
 
 struct Pipe {
     int id;
     Rectangle position;
     Color color;
-    bool hasCollided;
 };
-struct Pipe pipes[NUMBER_OF_PIPES];
+
+Vector2 title_pos = { 0, 1 };
+Vector2 box_pos = { 7, 11 };
+Vector2 score_pos = { 13, 1 };
+Vector2 score_text = { 0, 5 };
+Vector2 hi_score_text = { 0, 16 };
 
 bool isColliding(Rectangle *rec1, Rectangle *rec2)
 {
@@ -111,19 +111,38 @@ bool isColliding(Rectangle *rec1, Rectangle *rec2)
     return collision;
 }
 
+struct Pipe pipes[NUMBER_OF_PIPES];
 
-
-void initialize() {   //inits once
+void generatePipes() {
     
-}
+    for (i = 0; i < NUMBER_OF_PIPES; i++) {
+        //even top pipes
+        if (i % 2 == 0) { //even, starts with 0, 2, 4 etc
+            pipes[i].id = i;
+            pipes[i].position.x = (float)30 + pipeDistanceTop;
+            pipes[i].position.y = (float)0;
+            pipes[i].position.width = 2.0f;
+            pipes[i].position.height = (float)GetRandomValue(4, 12);
+            pipes[i].color = GREEN;
+            pipeDistanceTop += 12;
+            printf("Even Pipe %d XPOS:%d YPOS:%d \n", pipes[i].id, (int)pipes[i].position.x, (int)pipes[i].position.y);
+        }
+    }
 
-void updateFrame() { //updates each frame
+    for (i = 0; i < NUMBER_OF_PIPES; i++) {
+        //bottom odd pipes
+        if (i % 2 != 0) { //odd 1, 3, 5 etc
+            pipes[i].id = i;
+            pipes[i].position.x = (float)30 + pipeDistanceBottom;
+            pipes[i].position.y = (float)(pipes[i - 1].position.height + currentDifficulty);
+            pipes[i].position.width = 2.0f;
+            pipes[i].position.height = 18.0f;
+            pipes[i].color = GREEN;
+            pipeDistanceBottom += 12;
+            printf("Odd Pipe %d XPOS:%d YPOS:%d \n", pipes[i].id, (int)pipes[i].position.x, (int)pipes[i].position.y);
+        }
+    }
 
-} 
-
-void drawFrame() {  //draws each frame
-
-   
 }
 
 
@@ -143,39 +162,11 @@ int main(void)
     Texture2D skyTexture;
     skyTexture = LoadTextureFromImage(skyGradient);
    
-    for (i = 0; i < NUMBER_OF_PIPES; i++) {
-        //even top pipes
-        if (i % 2 == 0) { //even, starts with 0, 2, 4 etc
-        pipes[i].id = i;
-        pipes[i].position.x = (float)30 + pipeDistanceTop;
-        pipes[i].position.y = (float)0;
-        pipes[i].position.width = 2.0f;
-        pipes[i].position.height = (float)GetRandomValue(4,12);
-        pipes[i].color = GREEN;
-        pipes[i].hasCollided = false;
-        pipeDistanceTop += 12;
-        printf("Even Pipe %d\n", pipes[i].id);
-        }
-    }
-    
-    for (i = 0; i < NUMBER_OF_PIPES; i++) {
-        //bottom odd pipes
-        if (i % 2 != 0) { //odd 1, 3, 5 etc
-            pipes[i].id = i;
-            pipes[i].position.x = (float)30 + pipeDistanceBottom;
-            pipes[i].position.y = (float)(pipes[i - 1].position.height + EASY_HEIGHT);
-            pipes[i].position.width = 2.0f;
-            pipes[i].position.height = 18.0f;
-            pipes[i].color = GREEN;
-            pipes[i].hasCollided = false;
-            pipeDistanceBottom += 12;
-            printf("Odd Pipe %d\n", pipes[i].id);
-        }
-    }
+    generatePipes();
    
     struct Player player = { (gameScreenWidth - PLAYER_WIDTH) / 2 ,
                              (gameScreenHeight - PLAYER_HEIGHT) / 2,
-                              PLAYER_WIDTH, PLAYER_HEIGHT, GOLD, false, false, false };
+                              PLAYER_WIDTH, PLAYER_HEIGHT, GOLD, false};
     
    
     // ------------ end of INIT CODE ------------------
@@ -188,8 +179,22 @@ int main(void)
     {
         // Update--------------------->
 
+        if (score <= 20) currentDifficulty = EASY_HEIGHT;
+        if (score >= 21) currentDifficulty = MEDIUM_HEIGHT;
+        if (score >= 40) currentDifficulty = IMPOSSIBLE_HEIGHT;
 
-        if (!player.isDead) { //while not dead
+        hiScore = LoadStorageValue(STORAGE_POSITION_HISCORE);
+        if (score >= hiScore) {
+            hiScore = score;
+            SaveStorageValue(STORAGE_POSITION_HISCORE, hiScore);
+        }
+           
+        if (title && !scoreScreen) {
+            //start game w/space
+            if (IsKeyPressed(KEY_SPACE)) title = false;   
+        }
+
+        if (!player.isDead && !title) { //while not dead && not title screen
 
             //player falls
             (float)player.position.y += GRAVITY;
@@ -198,7 +203,6 @@ int main(void)
             if (IsKeyPressed(KEY_SPACE)) {
                 for (i = 0; i < COUNT; i++) {
                     player.position.y -= JUMP_POWER;
-                    player.isJumping = true;
                 }
             }//end is space pressed
 
@@ -211,7 +215,7 @@ int main(void)
                 if (pipes[i].position.x <= -4) {
                     pipes[i].position.x = 32 + 12;
                     if (i % 2 == 0) pipes[i].position.height = GetRandomValue(4, 12);
-                    if (i % 2 != 0) pipes[i].position.y = (float)(pipes[i - 1].position.height + EASY_HEIGHT);
+                    if (i % 2 != 0) pipes[i].position.y = (float)(pipes[i - 1].position.height + currentDifficulty);
                 }
                 if ((int)player.position.x == ((int)pipes[i].position.x + 1)) {
                     if (frameCount >= 1000) {
@@ -220,14 +224,11 @@ int main(void)
                         frameCount = 0;
                     }
                 }
-
-           
             }//end for
              
             //collision detection
             //top
             if (player.position.y <= 0) {
-                player.position.y = 0;
                 printf("DEAD at Y Position:%d \n", player.position.y);
                 player.isDead = true;
             }
@@ -246,10 +247,28 @@ int main(void)
 
         }//----> end if not dead
 
+        if (player.isDead) {
+            //TODO: give it a second to register before allowing space input or doesnt stop on roof
+           
+            scoreScreen = true;
+            if (IsKeyPressed(KEY_SPACE)) {
+                //reset everything
+                score = 0;
+                pipeDistanceTop = 0;
+                pipeDistanceBottom = 0;
+                currentDifficulty = EASY_HEIGHT;
+                frameCount = 0;
+                score = 0;
+                hiScore;
+                i = 0;
+                generatePipes();
+                player.position.x = (gameScreenWidth - PLAYER_WIDTH) / 2;
+                player.position.y = (gameScreenHeight - PLAYER_HEIGHT) / 2;
+                player.isDead = false;
+                scoreScreen = false;
+            }
+        }
 
-         
-        
-   
 
         //------------------->Update
         
@@ -269,17 +288,42 @@ int main(void)
 
         // ------------ Draw CODE here -------------
 
+        //background
         DrawTexture(skyTexture, 0, 0, WHITE);
+
         
-        for (i = 0; i < NUMBER_OF_PIPES; i++) {
-            DrawRectangle(pipes[i].position.x, pipes[i].position.y, pipes[i].position.width, pipes[i].position.height, pipes[i].color);
+        if (!title) {
+            //pipes
+            for (i = 0; i < NUMBER_OF_PIPES; i++) {
+                DrawRectangle(pipes[i].position.x, pipes[i].position.y, pipes[i].position.width, pipes[i].position.height, pipes[i].color);
+            }
+            //player
+            DrawRectangle((int)player.position.x, (int)player.position.y, player.position.width, player.position.height, player.color);
+        }
+        //
+      
+        if (title) {
+            DrawRectangle(
+                (gameScreenWidth - PLAYER_WIDTH) / 2, //X
+                (gameScreenHeight - PLAYER_HEIGHT) / 2, //Y
+                2, 2, GOLD); //w, h, color
         }
         
-        DrawRectangle((int)player.position.x, (int)player.position.y, player.position.width, player.position.height, player.color);
+        if (!title && !scoreScreen) {
+            DrawTextEx(GetFontDefault(), TextFormat("%d", score), score_pos, 9.5f, 1.0f, WHITE);
+            
+        }
+        if (title && !scoreScreen) {
+            DrawTextEx(GetFontDefault(), "Flappy", title_pos, 9.5f, 1.0f, WHITE);
+            DrawTextEx(GetFontDefault(), "Box", box_pos, 9.5f, 1.0f, WHITE);
+         
+        }
+        if (scoreScreen) {
+            DrawTextEx(GetFontDefault(), TextFormat("Scre%d", score), score_text, 9.5f, 1.0f, WHITE);
+            DrawTextEx(GetFontDefault(), TextFormat("Best%d", hiScore), hi_score_text, 9.5f, 1.0f, WHITE);
 
-        //
-       
-        
+        }
+
 
         // ------------ end of Draw CODE ------------------
 
@@ -296,15 +340,14 @@ int main(void)
         for (int x = 0; x < GetScreenWidth(); x += 16) DrawRectangle(x, 0, 4, GetScreenHeight(), BLACK);
         for (int y = 0; y < GetScreenHeight(); y += 16) DrawRectangle(0, y, GetScreenWidth(), 4, BLACK);
 
-        DrawText(TextFormat("%d", score), 246, 50, 55, BLACK);
-        DrawText(TextFormat("%d", score), 246, 50, 53, WHITE);
+    
         EndDrawing();
         //--------------------------------------------------------------------------------------
     }
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadRenderTexture(target);    // Unload render texture
-
+  
     
     
 
@@ -312,3 +355,4 @@ int main(void)
     //--------------------------------------------------------------------------------------
     return 0;
 }
+
