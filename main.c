@@ -37,9 +37,7 @@
 *     3. This notice may not be removed or altered from any source distribution.
 *
 **********************************************************************************************/
-
-//TODO ADD SOUND
-
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 #include "raylib.h"
 #include "raymath.h"
 
