@@ -1,7 +1,8 @@
-# RayLib32x32GameJam
-My submission for the [RayLib 32x32 Game Jam raylib 32x32 game/demo competition](https://www.reddit.com/r/raylib/comments/g10ofj/raylib_32x32_competition_free_entry_win_prizes/)
+# RayLib32x32GameJam Submission
+My submission for the [RayLib 32x32 Game Jam raylib 32x32 game/demo competition](https://www.reddit.com/r/raylib/comments/g10ofj/raylib_32x32_competition_free_entry_win_prizes/) is a game I call Flappy Box! 
+![gameplay gif](https://media.giphy.com/media/WnUN2kW2dptj1pKq11/giphy.gif)
 
-The Rules of the competition:
+The Rules of the competition were:
 
    Competition consists of developing a videogame in a 32x32 pixels screen size.
 
