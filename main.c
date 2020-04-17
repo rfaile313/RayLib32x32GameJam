@@ -42,7 +42,6 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include <stdio.h>
 
 #define max(a, b) ((a)>(b)? (a) : (b))
 #define min(a, b) ((a)<(b)? (a) : (b))
@@ -125,7 +124,6 @@ void generatePipes() {
             pipes[i].position.height = (float)GetRandomValue(4, 12);
             pipes[i].color = GREEN;
             pipeDistanceTop += 12;
-            printf("Even Pipe %d XPOS:%d YPOS:%d \n", pipes[i].id, (int)pipes[i].position.x, (int)pipes[i].position.y);
         }
     }
 
@@ -139,7 +137,6 @@ void generatePipes() {
             pipes[i].position.height = 18.0f;
             pipes[i].color = GREEN;
             pipeDistanceBottom += 12;
-            printf("Odd Pipe %d XPOS:%d YPOS:%d \n", pipes[i].id, (int)pipes[i].position.x, (int)pipes[i].position.y);
         }
     }
 
@@ -209,7 +206,6 @@ int main(void)
             //pipes move
             for (i = 0; i < NUMBER_OF_PIPES; i++) {
                 frameCount++;
-    //debugging frames printf("Frames: %d\n", frameCount);
                 pipes[i].position.x -= VELOCITY;
                 //reset pipe
                 if (pipes[i].position.x <= -4) {
@@ -220,7 +216,6 @@ int main(void)
                 if ((int)player.position.x == ((int)pipes[i].position.x + 1)) {
                     if (frameCount >= 1000) {
                         score++;
-      //debugging score printf("Score: %d\n", score);
                         frameCount = 0;
                     }
                 }
@@ -229,18 +224,15 @@ int main(void)
             //collision detection
             //top
             if (player.position.y <= 0) {
-                printf("DEAD at Y Position:%d \n", player.position.y);
                 player.isDead = true;
             }
             //bottom
             if (player.position.y >= 30) {
-                printf("DEAD at Y Position:%d \n", player.position.y);
                 player.isDead = true;
             }
             //pipes
             for (i = 0; i < NUMBER_OF_PIPES; i++) {
                 if (isColliding(&player.position, &pipes[i].position)) {
-                    printf("DEAD on pipe[%d], pipe x:%d, pipe y:%d \n", pipes[i].id, (int)pipes[i].position.x, (int)pipes[i].position.y);
                     player.isDead = true;
                 }
             }
