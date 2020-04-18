@@ -192,7 +192,7 @@ int main(void)
         if (!player.isDead && !title) { //while not dead && not title screen
 
             //player falls
-            (float)player.position.y += GRAVITY;
+            player.position.y += GRAVITY;
 
             //detecting player input and applying velocity
             if (IsKeyPressed(KEY_SPACE)) {
